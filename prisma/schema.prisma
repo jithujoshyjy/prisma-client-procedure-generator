@@ -1,0 +1,57 @@
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+generator procedures {
+    provider      = "node ./dist/generator.js"
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    name      String?
+    posts     Post[]
+    profile   Profile?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+    @@map("user")
+}
+
+model Profile {
+    id     Int     @id @default(autoincrement())
+    bio    String?
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId Int     @unique
+
+    @@map("profile")
+}
+
+model Post {
+    id         Int        @id @default(autoincrement())
+    title      String     @default("")
+    content    String?
+    published  Boolean    @default(false)
+    author     User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+    authorId   Int?
+    categories Category[]
+}
+
+model Category {
+    id    Int    @id @default(autoincrement())
+    name  String
+    posts Post[]
+}
+
+model Token {
+    id              Int    @id @default(autoincrement())
+    device          String
+    operatingSystem String
+
+    @@unique([device, operatingSystem])
+}

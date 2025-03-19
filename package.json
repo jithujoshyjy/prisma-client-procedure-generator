@@ -1,0 +1,52 @@
+{
+    "name": "client-procedure-generator",
+    "version": "0.1.0",
+    "description": "Prisma Client Procedure Generator",
+    "bin": "./dist/generator.js",
+    "scripts": {
+        "build": "tsc -p .",
+        "dev:watch": "tsc -p . --watch",
+        "dev": "tsc -p . && npm run prisma:generate",
+        "migrate:dev": "prisma migrate dev --preview-feature",
+        "migrate:dev:create": "prisma migrate dev --create-only --preview-feature",
+        "migrate:reset": "prisma migrate reset --preview-feature",
+        "migrate:deploy": "npx prisma migrate deploy --preview-feature",
+        "migrate:status": "npx prisma migrate status --preview-feature",
+        "migrate:resolve": "npx prisma migrate resolve --preview-feature",
+        "prisma:generate": "npx prisma generate",
+        "publish": "npm run build && npm publish"
+    },
+    "keywords": [
+        "prisma",
+        "client",
+        "procedures",
+        "generator"
+    ],
+    "contributors": [
+        {
+            "name": "Jithu Joshy"
+        }
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jithujoshyjy/prisma-procedure-generator.git"
+    },
+    "bugs": {
+        "url": "https://github.com/jithujoshyjy/prisma-procedure-generator/issues"
+    },
+    "dependencies": {
+        "@prisma/generator-helper": "5.0.0",
+        "@prisma/internals": "5.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "18.11.0",
+        "@types/jest": "^29.2.4",
+        "@prisma/client": "5.0.0",
+        "prisma": "5.0.0",
+        "ts-toolbelt": "^9.6.0",
+        "typescript": "5.3.3",
+        "jest": "29.7.0",
+        "ts-jest": "29.1.2"
+    }
+}

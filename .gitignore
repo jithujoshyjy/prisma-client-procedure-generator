@@ -1,0 +1,4 @@
+.env
+node_modules
+prisma/dev.db
+package-lock.json

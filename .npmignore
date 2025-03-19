@@ -1,0 +1,8 @@
+# source
+package-lock.json
+.prettierrc
+prisma/
+.vscode/
+.github/
+src/
+.env
