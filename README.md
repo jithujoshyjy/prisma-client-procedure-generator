@@ -52,8 +52,8 @@ generates the following function that can be imported from `@prisma/client/proce
 import { PrismaClient } from "./index.js";
 const prisma = new PrismaClient();
 
-export async function createUser($1,$2) {
-    const[$name,$email]=[$1,$2];
+export async function createUser($1, $2) {
+    const[$name, $email] = [$1, $2];
     return await prisma.$executeRaw`
         INSERT INTO user ("name", email) VALUES (${$name}, ${$email})
     `;

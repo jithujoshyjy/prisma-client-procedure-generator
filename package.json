@@ -1,6 +1,6 @@
 {
-    "name": "client-procedure-generator",
-    "version": "0.1.0",
+    "name": "prisma-client-procedure-generator",
+    "version": "0.1.11",
     "description": "Prisma Client Procedure Generator",
     "bin": "./dist/generator.js",
     "scripts": {
@@ -30,10 +30,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/jithujoshyjy/prisma-procedure-generator.git"
+        "url": "https://github.com/jithujoshyjy/prisma-client-procedure-generator.git"
     },
     "bugs": {
-        "url": "https://github.com/jithujoshyjy/prisma-procedure-generator/issues"
+        "url": "https://github.com/jithujoshyjy/prisma-client-procedure-generator/issues"
     },
     "dependencies": {
         "@prisma/generator-helper": "5.0.0",
