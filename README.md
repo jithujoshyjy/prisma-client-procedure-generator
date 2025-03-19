@@ -49,12 +49,11 @@ VALUES (:name, :email)
 generates the following function that can be imported from `@prisma/client/procedures`
 
 ```javascript
-import { PrismaClient } from "./index.js";
-const prisma = new PrismaClient();
+import { Prisma } from "./index.js";
 
 export async function createUser($1, $2) {
     const[$name, $email] = [$1, $2];
-    return await prisma.$executeRaw`
+    return await Prisma.sql`
         INSERT INTO user ("name", email) VALUES (${$name}, ${$email})
     `;
 }
@@ -66,12 +65,15 @@ The following example shows the usage in a NextJS server action
 
 ```javascript
 "use server"
+import { PrismaClient } from "@prisma/client"
 import { createUser } from "@prisma/client/procedures"
+
+const prisma = new PrismaClient()
 
 export async function createUserAction(formData: FormData) {
     const name = formData.get("name")
     const email = formData.get("email")
-
-    await createUser(name, email)
+    
+    await prisma.$executeRaw(createUser(name, email))
 }
 ```

@@ -29,11 +29,11 @@ const data = {
     name: "" + Math.floor(Math.random() * 100_000),
 }
 
-const headerCjs = `const{PrismaClient}=require("./index.js");const prisma=new PrismaClient();`
-const procedureCjs = `exports.<<name>>=async function(<<args>>){<<init>>return await prisma.$executeRaw<<code>>;}`
+const headerCjs = `const{Prisma}=require("./index.js");`
+const procedureCjs = `exports.<<name>>=function(<<args>>){<<init>>return Prisma.sql<<code>>;}`
 
-const headerMjs = `import{PrismaClient}from"./index.js";const prisma=new PrismaClient();`
-const procedureMjs = `export async function <<name>>(<<args>>){<<init>>return await prisma.$executeRaw<<code>>;}`
+const headerMjs = `import{Prisma}from"./index.js";`
+const procedureMjs = `export function <<name>>(<<args>>){<<init>>return Prisma.sql<<code>>;}`
 const procInit = `const[<<vars>>]=[<<values>>];`
 
 const dtsHeader = `import * as runtime from "@prisma/client/runtime/library";`
