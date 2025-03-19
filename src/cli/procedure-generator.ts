@@ -38,7 +38,7 @@ const procInit = `const[<<vars>>]=[<<values>>];`
 
 const dtsHeader = `import * as runtime from "@prisma/client/runtime/library";`
 const dtsProcJSDocType = `/**<<params>>\n */`
-const dtsProcTypeDef = `export const <<name>>: (<<params>>) => runtime.PrismaPromise<number>;`
+const dtsProcTypeDef = `export const <<name>>: (<<params>>) => runtime.Sql;`
 
 const out2Cjs = `"use strict";module.exports={...require(".prisma/client/procedures")};`
 const out2Mjs = `export*from"../../.prisma/client/procedures.mjs";`
