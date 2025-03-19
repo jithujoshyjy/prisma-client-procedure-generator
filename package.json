@@ -1,6 +1,6 @@
 {
     "name": "prisma-client-procedure-generator",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "description": "Prisma Client Procedure Generator",
     "bin": "./dist/generator.js",
     "scripts": {

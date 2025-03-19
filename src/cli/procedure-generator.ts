@@ -89,6 +89,31 @@ export async function generate(options: GeneratorOptions) {
             writeFile(join(outDir2, "procedures.d.ts"), out2Dts),
         ])
 
+        const outDirPackageJson = await readFile(join(outDir, "package.json"), "utf-8")
+            .then(x => JSON.parse(x))
+        const outDir2PackageJson = await readFile(join(outDir2, "package.json"), "utf-8")
+            .then(x => JSON.parse(x))
+
+        const procedureModule = {
+            "require": {
+                "types": "./procedures.d.ts",
+                "node": "./procedures.js",
+                "default": "./procedures.js"
+            },
+            "import": {
+                "types": "./procedures.d.ts",
+                "node": "./procedures.mjs",
+                "default": "./procedures.mjs"
+            },
+            "default": "./procedures.js"
+        }
+
+        if (outDirPackageJson.exports) outDirPackageJson.exports["./procedures"] = procedureModule
+        if (outDir2PackageJson.exports) outDir2PackageJson.exports["./procedures"] = procedureModule
+
+        await writeFile(join(outDir, "package.json"), JSON.stringify(outDirPackageJson, undefined, 4))
+        await writeFile(join(outDir2, "package.json"), JSON.stringify(outDir2PackageJson, undefined, 4))
+
     } catch (e) {
         console.error("Error: unable to write files for Prisma Client Procedures Generator")
         throw e
