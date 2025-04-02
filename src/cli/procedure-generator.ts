@@ -166,9 +166,9 @@ function sanitizeSql(fileName: string, query: ReturnType<typeof parseSqlParams>)
 }
 
 function parseSqlParams(sql: string) {
-    const paramRegex = /^--\s*@param\s*\{(\w+)\}\s*(\$\d+)(?::([\w\d_]+))?/
+    const paramRegex = /^--\s*@param\s*\{(\w+)\}\s*(\$\d+)(?::([\w\d_]+)(\?)?)?([^\n]*)/
 
-    const paramMap = new Map<string, { type: string; alias: string | null }>()
+    const paramMap: Map<string, { type: string; alias: string | null, optional: boolean, description: string }> = new Map()
 
     const lines = sql.split("\n")
     let parsingComments = true, remainingSqlStartIndex = 0;
@@ -187,10 +187,15 @@ function parseSqlParams(sql: string) {
         const match = trimmedLine.match(paramRegex)
         if (!match) break
 
-        const [, type, param, alias] = match
+        const [, type, param, alias, optional, description] = match
 
         if (!validTypes.has(type)) throw new Error(`Invalid type '${type}' in SQL comment.`)
-        paramMap.set(param, { type, alias: alias ?? null })
+        paramMap.set(param, {
+            type,
+            alias: alias ?? null,
+            optional: !!optional,
+            description: description?.trim() ?? ''
+        })
     }
 
     const remainingSql = lines.slice(remainingSqlStartIndex).join("\n").trim()
@@ -285,15 +290,17 @@ function createProcedureDtsTemplate(props: { fileName: string, params: ReturnTyp
             const k = '$' + (i + 1);
             const v = props.params.get(k)?.alias ?? null
             const t = props.params.get(k)?.type ?? null
-            return [k, v ?? k, t as keyof typeof prismaToJsTypeMap | null] as const
+            const o = props.params.get(k)?.optional ?? false
+            const d = props.params.get(k)?.description ?? ''
+            return [k, v ?? k, t as keyof typeof prismaToJsTypeMap | null, o, d] as const
         }
     )
 
     const jsDocParams = pairArgs
-        .map(([k, v]) => `\n * @param ${k === v ? k : v}`)
+        .map(([k, v, , , d]) => `\n * @param ${k === v ? k : v}${d ? ' ' + d : ''}`)
 
     const dtsParams = pairArgs
-        .map(([k, v, t]) => `${k === v ? k : v}: ${!t ? "unknown" : prismaToJsTypeMap[t] ?? "unknown"}`)
+        .map(([k, v, t, o]) => `${k === v ? k : v}: ${!t ? o ? "unknown | null" : "unknown" : o ? [prismaToJsTypeMap[t] ?? "unknown", "null"].join(" | ") : prismaToJsTypeMap[t] ?? "unknown"}`)
 
     const jsDocParamsStr = dtsProcJSDocType
         .replace(/<<params>>/, jsDocParams.join(''))

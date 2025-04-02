@@ -140,7 +140,8 @@ function sanitizeSql(fileName, query) {
     return { fileName, params, code: ['`', code, '`'].join('') };
 }
 function parseSqlParams(sql) {
-    const paramRegex = /^--\s*@param\s*\{(\w+)\}\s*(\$\d+)(?::([\w\d_]+))?/;
+    var _a;
+    const paramRegex = /^--\s*@param\s*\{(\w+)\}\s*(\$\d+)(?::([\w\d_]+)(\?)?)?([^\n]*)/;
     const paramMap = new Map();
     const lines = sql.split("\n");
     let parsingComments = true, remainingSqlStartIndex = 0;
@@ -158,10 +159,15 @@ function parseSqlParams(sql) {
         const match = trimmedLine.match(paramRegex);
         if (!match)
             break;
-        const [, type, param, alias] = match;
+        const [, type, param, alias, optional, description] = match;
         if (!validTypes.has(type))
             throw new Error(`Invalid type '${type}' in SQL comment.`);
-        paramMap.set(param, { type, alias: alias !== null && alias !== void 0 ? alias : null });
+        paramMap.set(param, {
+            type,
+            alias: alias !== null && alias !== void 0 ? alias : null,
+            optional: !!optional,
+            description: (_a = description === null || description === void 0 ? void 0 : description.trim()) !== null && _a !== void 0 ? _a : ''
+        });
     }
     const remainingSql = lines.slice(remainingSqlStartIndex).join("\n").trim();
     return { params: paramMap, remainingSql };
@@ -229,16 +235,18 @@ function createProcedureDtsTemplate(props) {
         .sort(([xk], [yk]) => +xk.replace('$', '') - +yk.replace('$', ''));
     const lastArg = pArgs.at(-1);
     const pairArgs = Array.from({ length: +lastArg[0].replace('$', '') }, (_, i) => {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const k = '$' + (i + 1);
         const v = (_b = (_a = props.params.get(k)) === null || _a === void 0 ? void 0 : _a.alias) !== null && _b !== void 0 ? _b : null;
         const t = (_d = (_c = props.params.get(k)) === null || _c === void 0 ? void 0 : _c.type) !== null && _d !== void 0 ? _d : null;
-        return [k, v !== null && v !== void 0 ? v : k, t];
+        const o = (_f = (_e = props.params.get(k)) === null || _e === void 0 ? void 0 : _e.optional) !== null && _f !== void 0 ? _f : false;
+        const d = (_h = (_g = props.params.get(k)) === null || _g === void 0 ? void 0 : _g.description) !== null && _h !== void 0 ? _h : '';
+        return [k, v !== null && v !== void 0 ? v : k, t, o, d];
     });
     const jsDocParams = pairArgs
-        .map(([k, v]) => `\n * @param ${k === v ? k : v}`);
+        .map(([k, v, , , d]) => `\n * @param ${k === v ? k : v}${d ? ' ' + d : ''}`);
     const dtsParams = pairArgs
-        .map(([k, v, t]) => { var _a; return `${k === v ? k : v}: ${!t ? "unknown" : (_a = prismaToJsTypeMap[t]) !== null && _a !== void 0 ? _a : "unknown"}`; });
+        .map(([k, v, t, o]) => { var _a, _b; return `${k === v ? k : v}: ${!t ? o ? "unknown | null" : "unknown" : o ? [(_a = prismaToJsTypeMap[t]) !== null && _a !== void 0 ? _a : "unknown", "null"].join(" | ") : (_b = prismaToJsTypeMap[t]) !== null && _b !== void 0 ? _b : "unknown"}`; });
     const jsDocParamsStr = dtsProcJSDocType
         .replace(/<<params>>/, jsDocParams.join(''));
     const dtsParamsStr = dtsProcTypeDef

@@ -40,7 +40,7 @@ generator procedures {
 
 ```sql
 -- @param {String} $1:name The name of the user
--- @param {String} $2:email The email id of the user
+-- @param {String} $2:email? The email id of the user
 
 INSERT INTO "user" ("name", "email")
 VALUES (:name, :email)
@@ -57,6 +57,15 @@ export async function createUser($1, $2) {
         INSERT INTO user ("name", email) VALUES (${$name}, ${$email})
     `;
 }
+
+// .d.ts file
+
+import * as runtime from "@prisma/client/runtime/library";
+/**
+ * @param name The name of the user
+ * @param email The email id of the user
+ */
+export const createUser: (name: string, email: string | null) => runtime.Sql;
 ```
 
 4. Import and use the function to execute custom sql code
